@@ -51,33 +51,35 @@ Node* build(Tuple A[], int m) {
     return constructBinaryTree(A, 0, m - 1);
 }
 
-//二分搜索 小于等于targetkey的最大索引
+//二分搜索 大于等于targetkey的最小索引
 int binarySearch(Tuple A[], int m, KeyType targetkey) {
     int left = 0, right = m - 1;
     while (left <= right) {
         int mid = (left + right) >> 1;
-        if (A[mid].key <= targetkey) {
-            left = mid + 1;
-        }
-        else {
+        if (A[mid].key >= targetkey) {
             right = mid - 1;
         }
+        else {
+            left = mid + 1;
+        }
     }
-    return right;
+    return left;
 }
 
+//binarySearch的测试版本
 int binarySearch(KeyType A[], int m, KeyType targetkey) {
     int left = 0, right = m - 1;
     while (left <= right) {
         int mid = (left + right) >> 1;
-        if (A[mid] <= targetkey) {
-            left = mid + 1;
+        if (A[mid] >= targetkey) {
+            right = mid - 1;
+            
         }
         else {
-            right = mid - 1;
+            left = mid + 1;
         }
     }
-    return right;
+    return left;
 }
 
 //复制节点
@@ -85,11 +87,14 @@ Node* copy(Node* t) {
     return  new Node(*t);
 }
 
-//连接父子节点
+//连接父子节点  doing
 Node* concat(Node* L, Node* t, Node* R) {
-    t->leftChild = L;
-    t->rightChild = R;
-    return t;
+    if(t!=nullptr){
+        return nullptr;
+    }else{
+        return nullptr;
+    }
+    
 }
 
 //引用计数器加1
@@ -124,7 +129,6 @@ int size(Node* t) {
                 pre = pre->rightChild;
             if (pre->rightChild == nullptr) {//若前驱的右指针为空，则说明cur还没被遍历,先输出cur
                 counter++;
-              
                 pre->rightChild = cur;
                 cur = cur->leftChild;
             }
@@ -150,10 +154,10 @@ Node* multi_insert(Node* t, Tuple A[], int m, int (*rho)(int val1, int val2)) {
         add_ref(t);
         return t;
     }
-    int b = binarySearch(A, m, t->key);
-    int d = (b<m&& A[b].key>t->key) ? 1 : 0;
+    int b = binarySearch(A, m, t->key);//b相当于小于t->key的子数组长度
+    int d = (b<m&& A[b].key>t->key) ? 1 : 0;//t->key不在A[]中，且不超过A[]的最大值
     Node* L = multi_insert(t->leftChild, A, b, rho);
-    Node* R = multi_insert(t->rightChild, A + b - d, m - b - d, rho);
+    Node* R = multi_insert(t->rightChild, A + b + d, m - b - d, rho);
     Node* t2 = copy(t);
     if (d == 1)t2->entry->val = rho(t->entry->val, A[b].val);
     return concat(L, t2, R);
@@ -193,7 +197,11 @@ void foreach_index(Node* t, void (*function)(Tuple* e, int i), int s) {
 
 //先序遍历p-树
 void travel(Node* t) {
-    if (t == nullptr)return;
+    if (t == nullptr){
+        cout<<"# ";
+        return;
+    }
+        
     cout << "[" << t->key << ":" << t->entry->val << "] ";
     travel(t->leftChild);
     travel(t->rightChild);
@@ -230,18 +238,18 @@ void test_multi_insert() {
     int const m = 5;
     Tuple tuples[m];
     cout << "build p-tree" << endl;
+    KeyType build_key[] = { 1,2,3,4,5 };
+    ValueType build_value[] = { 101,102,103,104,105 };
+
     for (int i = 0; i < m; i++) {
-        tuples[i].key = i;
-        tuples[i].val = i;
+        tuples[i].key = build_key[i];
+        tuples[i].val = build_value[i];
         cout << "[" << tuples[i].key << ":" << tuples[i].val << "] ";
     }
     cout << endl;
 
     Node* indexRoot = nullptr;
-    indexRoot = multi_insert(indexRoot, tuples, 5, rho);
-
-    cout << "pre order trvel" << endl;
-    travel(indexRoot);
+    indexRoot = multi_insert(indexRoot, tuples, m, rho);
 }
 
 //done
@@ -266,7 +274,7 @@ void test_size() {
 
 }
 
-//to do
+//done
 void test_binarySearch() {
     
     int A[] = { 1,2,4,5,6,7,8 ,9,11};
@@ -277,7 +285,7 @@ void test_binarySearch() {
 }
 
 //done
-void test_height(int const m) {   
+void test_height(int const m) {
     Tuple *tuples=new Tuple[m];
    // cout << "build p-tree" << endl;
     for (int i = 0; i < m; i++) {
@@ -291,9 +299,40 @@ void test_height(int const m) {
     cout << m<<":"<<height(indexRoot) << endl;
 }
 
-//to do
+//doing
 void test_concat() {
+    int const m1 = 5,m2=5;
+    Tuple tuples1[m1],tuples2[m2];
+    cout << "build p-tree" << endl;
+    
+    KeyType build_key1[] = { 1,3,5,7,9 };
+    ValueType build_value1[] = { 101,103,105,107,109 };
+    for (int i = 0; i < m1; i++) {
+        tuples1[i].key = build_key1[i];
+        tuples1[i].val = build_value1[i];
+        cout << "[" << tuples1[i].key << ":" << tuples1[i].val << "] ";
+    }
+    cout << endl;
+    
+    KeyType build_key2[]= { 2,4,6,8,10 };
+    ValueType build_value2[]= { 102,104,106,108,110 };
+    for (int i = 0; i < m2; i++) {
+        tuples2[i].key = build_key2[i];
+        tuples2[i].val = build_value2[i];
+        cout << "[" << tuples2[i].key << ":" << tuples2[i].val << "] ";
+    }
+    cout << endl;
 
+    Node* indexRoot1 = nullptr;
+    Node* indexRoot2 = nullptr;
+    Node* indexRoot3 = nullptr;
+    
+    indexRoot1 = multi_insert(indexRoot1, tuples1, m1, rho);
+    indexRoot2 = multi_insert(indexRoot2, tuples2, m2, rho);
+    indexRoot3=concat(indexRoot1,indexRoot3,indexRoot2);
+    
+    travel(indexRoot3);
+   
 }
 
 //to do
@@ -315,6 +354,6 @@ void test_foreachindex() {
 
 int main()
 {
-   
+    test_concat();
     return 0;
 }
