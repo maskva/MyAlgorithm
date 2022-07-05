@@ -46,6 +46,8 @@ Node* L_rotation(Node* root){
     Node* newRoot=root->rightChild;
     root->rightChild=newRoot->leftChild;
     newRoot->leftChild=root;
+    root->height=max(getHeight(root->leftChild),getHeight(root->rightChild))+1;
+    newRoot->height=max(getHeight(newRoot->leftChild),getHeight(newRoot->rightChild))+1;
     return newRoot;
 }
 
@@ -53,6 +55,8 @@ Node* R_rotation(Node* root){
     Node* newRoot=root->leftChild;
     root->leftChild=newRoot->rightChild;
     newRoot->rightChild=root;
+    root->height=max(getHeight(root->leftChild),getHeight(root->rightChild))+1;
+    newRoot->height=max(getHeight(newRoot->leftChild),getHeight(newRoot->rightChild))+1;
     return newRoot;
 }
 
@@ -61,7 +65,7 @@ Node* LR_rotation(Node* root){
     root->leftChild->rightChild=newRoot->leftChild;
     newRoot->leftChild=root->leftChild;
     root->leftChild=newRoot->rightChild;
-    newRoot->rightChild=root;    
+    newRoot->rightChild=root;
     return newRoot;
 }
 
@@ -87,7 +91,9 @@ Node* constructBinaryTree(Tuple tuples[], int  left, int right) {
 
 //构建p-树
 Node* build(Tuple A[], int m) {
-    return constructBinaryTree(A, 0, m - 1);
+    Node* root= constructBinaryTree(A, 0, m - 1);
+    updateHeight(root);
+    return root;
 }
 
 //二分搜索 大于等于targetkey的最小索引
@@ -129,9 +135,38 @@ Node* copy(Node* t) {
 //连接父子节点  doing
 Node* concat(Node* L, Node* t, Node* R) {
     if(t!=nullptr){
+        if(getHeight(L)>getHeight(R)+1){
+            t->rightChild=R;
+            Node* p=L;
+            Node* pre_to_p=nullptr;
+            while (getHeight(p->rightChild)>getHeight(R)+1) {
+                pre_to_p=p;
+                p=p->rightChild;
+            }
+            t->leftChild=p->rightChild;
+            p->rightChild=t;
+            t->height=max(getHeight(t->leftChild),getHeight(t->rightChild))+1;
+            if(getHeight(p->leftChild)<getHeight(t->leftChild)){
+                if(pre_to_p==nullptr){
+                    return RL_rotation(p);
+                }else{
+                    pre_to_p->rightChild=RL_rotation(p);
+                }
+            }
+            return L;
+            
+        }else if(getHeight(R)>getHeight(L)+1){
+            
+        }else{
+            t->leftChild=L;
+            t->rightChild=R;
+            return t;
+        }
         return nullptr;
     }else{
+        //to do
         return nullptr;
+        
     }
     
 }
@@ -335,7 +370,7 @@ void test_height(int const m) {
     cout << endl;
     Node* indexRoot = nullptr;
     indexRoot = multi_insert(indexRoot, tuples, m, rho);
-    cout << m<<":"<<height(indexRoot) << endl;
+    cout << m<<":"<<getHeight(indexRoot) << endl;
 }
 
 //doing
@@ -393,6 +428,7 @@ void test_foreachindex() {
 
 int main()
 {
-    test_concat();
+    for(int i=0;i<17;++i)
+        test_height(i);
     return 0;
 }
