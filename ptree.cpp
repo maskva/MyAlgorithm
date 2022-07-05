@@ -29,6 +29,35 @@ struct Node {
     }
 };
 
+//返回子树节点数目 Morris先序
+int size(Node* t) {
+    Node* cur = t;
+    int counter = 0;
+    while (cur != nullptr) {
+        if (cur->leftChild != nullptr) {//如果左子树非空
+            //先找到中序遍历的前驱节点，注意，是中序；也即左子树的最右节点
+            Node* pre = cur->leftChild;
+            while (pre->rightChild != nullptr && pre->rightChild != cur)
+                pre = pre->rightChild;
+            if (pre->rightChild == nullptr) {//若前驱的右指针为空，则说明cur还没被遍历,先输出cur
+                counter++;
+                pre->rightChild = cur;
+                cur = cur->leftChild;
+            }
+            else {//若前驱的右指针为指向cur，说明cur被遍历过
+                pre->rightChild = nullptr;
+                cur = cur->rightChild;
+            }
+        }
+        else {//如果左子树为空，则直接遍历cur，并向右子树走
+            counter++;
+           
+            cur = cur->rightChild;
+        }
+    }
+    return counter;
+}
+
 int getHeight(const Node* root){
     if(root==nullptr)return 0;
     return root->height;
@@ -40,6 +69,18 @@ int updateHeight(Node* root) {//递归更新所有节点的height
     root->height=max(updateHeight(root->leftChild),updateHeight(root->rightChild))+1;
     return root->height;
 }
+
+int updateHeight(Node* root,Node* targetNode,bool left_or_right){//更新left spine 或者right spine的height
+    if(root==targetNode)
+        return root->height;
+    if(left_or_right){
+        root->height=max(getHeight(root->leftChild),updateHeight(root->rightChild,targetNode,true));
+    }else{
+        root->height=max(getHeight(root->rightChild),updateHeight(root->leftChild,targetNode,false));
+    }
+    return root->height;
+}
+
 
 //avl操作
 Node* L_rotation(Node* root){
@@ -139,6 +180,8 @@ Node* concat(Node* L, Node* t, Node* R) {
             t->rightChild=R;
             Node* p=L;
             Node* pre_to_p=nullptr;
+            //寻找高为h(R)+1的子树，根节点为p->rightChild,
+            //特殊情况：h(L->l)=h(R)+1,h(L->r)=h(R),此时，该子树的高度为h(R)
             while (getHeight(p->rightChild)>getHeight(R)+1) {
                 pre_to_p=p;
                 p=p->rightChild;
@@ -146,15 +189,20 @@ Node* concat(Node* L, Node* t, Node* R) {
             t->leftChild=p->rightChild;
             p->rightChild=t;
             t->height=max(getHeight(t->leftChild),getHeight(t->rightChild))+1;
-            if(getHeight(p->leftChild)<getHeight(t->leftChild)){
-                if(pre_to_p==nullptr){
+            if(getHeight(p->leftChild)<getHeight(t->leftChild)){//p的左右子树高度分别为h(R),h(R)+1
+                p->height=max(getHeight(p->leftChild),getHeight(p->rightChild))+1;
+                if(pre_to_p==nullptr){//也即p=L，进行RL旋转后，根节点可能会变
                     return RL_rotation(p);
                 }else{
                     pre_to_p->rightChild=RL_rotation(p);
                 }
+            //p的左右子树高度都为h(R)+1,（都为h(R)的情况不存在,原因见前面的注释)
+            //此时应当更新从root到p路径上节点的height
+            }else if(getHeight(p->leftChild)==getHeight(t->leftChild)){
+                p->height=max(getHeight(p->leftChild),getHeight(p->rightChild))+1;
+                updateHeight(L,p,true);
             }
             return L;
-            
         }else if(getHeight(R)>getHeight(L)+1){
             
         }else{
@@ -191,34 +239,7 @@ Node* left(Node* t, int k) {
     return concat(left(t->rightChild, k), t2, t->leftChild);
 }
 
-//返回子树节点数目 Morris先序
-int size(Node* t) {
-    Node* cur = t;
-    int counter = 0;
-    while (cur != nullptr) {
-        if (cur->leftChild != nullptr) {//如果左子树非空
-            //先找到中序遍历的前驱节点，注意，是中序；也即左子树的最右节点
-            Node* pre = cur->leftChild;
-            while (pre->rightChild != nullptr && pre->rightChild != cur)
-                pre = pre->rightChild;
-            if (pre->rightChild == nullptr) {//若前驱的右指针为空，则说明cur还没被遍历,先输出cur
-                counter++;
-                pre->rightChild = cur;
-                cur = cur->leftChild;
-            }
-            else {//若前驱的右指针为指向cur，说明cur被遍历过
-                pre->rightChild = nullptr;
-                cur = cur->rightChild;
-            }
-        }
-        else {//如果左子树为空，则直接遍历cur，并向右子树走
-            counter++;
-           
-            cur = cur->rightChild;
-        }
-    }
-    return counter;
-}
+
 
 //t:根节点;A[]:待插入的元组(已排序);m:元组个数
 Node* multi_insert(Node* t, Tuple A[], int m, int (*rho)(int val1, int val2)) {
