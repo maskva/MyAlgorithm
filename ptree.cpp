@@ -1,6 +1,5 @@
 #include<iostream>
 using namespace std;
-
 typedef int HashType;
 typedef int KeyType;
 typedef int ValueType;
@@ -18,28 +17,68 @@ struct Node {
     Node* rightChild;
     HashType hash;
     int reference_counter;
-    //int depth;
-    Node(Tuple* entry) {
+    int height;
+    Node(Tuple* entry,Node* leftChild,Node* rightChild) {
         this->entry = entry;
-        leftChild = nullptr;
-        rightChild = nullptr;
+        this->leftChild = leftChild;
+        this->rightChild = rightChild;
         key = entry->key;
         reference_counter = 1;
-        //depth=1;
+        height=1;
         hash = rand();
     }
 };
 
-int height(const Node* root) {//求树高，递归
+int getHeight(const Node* root){
+    if(root==nullptr)return 0;
+    return root->height;
+}
+
+int updateHeight(Node* root) {//递归更新所有节点的height
     if (root == nullptr)
         return 0;
-    return max(height(root->leftChild), height(root->rightChild)) + 1;
+    root->height=max(updateHeight(root->leftChild),updateHeight(root->rightChild))+1;
+    return root->height;
 }
+
+//avl操作
+Node* L_rotation(Node* root){
+    Node* newRoot=root->rightChild;
+    root->rightChild=newRoot->leftChild;
+    newRoot->leftChild=root;
+    return newRoot;
+}
+
+Node* R_rotation(Node* root){
+    Node* newRoot=root->leftChild;
+    root->leftChild=newRoot->rightChild;
+    newRoot->rightChild=root;
+    return newRoot;
+}
+
+Node* LR_rotation(Node* root){
+    Node* newRoot=root->leftChild->rightChild;
+    root->leftChild->rightChild=newRoot->leftChild;
+    newRoot->leftChild=root->leftChild;
+    root->leftChild=newRoot->rightChild;
+    newRoot->rightChild=root;    
+    return newRoot;
+}
+
+Node* RL_rotation(Node* root){
+    Node* newRoot=root->rightChild->leftChild;
+    root->rightChild->leftChild=newRoot->rightChild;
+    newRoot->rightChild=root->rightChild;
+    root->rightChild=newRoot->leftChild;
+    newRoot->leftChild=root;
+    return newRoot;
+}
+
 
 Node* constructBinaryTree(Tuple tuples[], int  left, int right) {
     if (left > right)return nullptr;
     int mid = (left + right) / 2;
-    Node* root = new Node(new Tuple(tuples[mid]));
+    Node* root = new Node(new Tuple(tuples[mid]),nullptr,nullptr);
     root->key = tuples[mid].key;
     root->leftChild = constructBinaryTree(tuples, left, mid - 1);
     root->rightChild = constructBinaryTree(tuples, mid + 1, right);
