@@ -7,10 +7,10 @@ typedef int ValueType;
 struct Tuple {
     KeyType key;
     ValueType val;
-    Tuple(){}
-    Tuple(KeyType key,ValueType val){
-        this->key=key;
-        this->val=val;
+    Tuple() {}
+    Tuple(KeyType key, ValueType val) {
+        this->key = key;
+        this->val = val;
     }
 };
 
@@ -22,17 +22,19 @@ struct Node {
     HashType hash;
     int reference_counter;
     int height;
-    Node(Tuple* entry,Node* lc,Node* rc) {
+    Node(Tuple* entry, Node* lc, Node* rc) {
         this->entry = entry;
         this->lc = lc;
         this->rc = rc;
         key = entry->key;
         reference_counter = 1;
-        height=1;
+        height = 1;
         hash = rand();
     };
 
 };
+
+int rho(ValueType val1, ValueType val2) { return val2; }
 
 //返回子树节点数目 Morris先序
 int size(Node* t) {
@@ -63,70 +65,71 @@ int size(Node* t) {
     return counter;
 }
 
-int getHeight(const Node* root){
-    if(root==nullptr)return 0;
+int getHeight(const Node* root) {
+    if (root == nullptr)return 0;
     return root->height;
 }
 
 int updateHeight(Node* root) {//递归更新所有节点的height
     if (root == nullptr)
         return 0;
-    root->height=max(updateHeight(root->lc),updateHeight(root->rc))+1;
+    root->height = max(updateHeight(root->lc), updateHeight(root->rc)) + 1;
     return root->height;
 }
 
 //更新left spine 或者right spine的height,true:right  false:left
-int updateHeight(Node* root,Node* targetNode,bool left_or_right){
-    if(root==targetNode)
+int updateHeight(Node* root, Node* targetNode, bool left_or_right) {
+    if (root == targetNode)
         return root->height;
-    if(left_or_right){
-        root->height=max(getHeight(root->lc),updateHeight(root->rc,targetNode,true));
-    }else{
-        root->height=max(getHeight(root->rc),updateHeight(root->lc,targetNode,false));
+    if (left_or_right) {
+        root->height = max(getHeight(root->lc), updateHeight(root->rc, targetNode, true));
+    }
+    else {
+        root->height = max(getHeight(root->rc), updateHeight(root->lc, targetNode, false));
     }
     return root->height;
 }
 
 //avl操作
-Node* L_rotation(Node* root){
-    Node* newRoot=root->rc;
-    root->rc=newRoot->lc;
-    newRoot->lc=root;
-    root->height=max(getHeight(root->lc),getHeight(root->rc))+1;
-    newRoot->height=max(getHeight(newRoot->lc),getHeight(newRoot->rc))+1;
+Node* L_rotation(Node* root) {
+    Node* newRoot = root->rc;
+    root->rc = newRoot->lc;
+    newRoot->lc = root;
+    root->height = max(getHeight(root->lc), getHeight(root->rc)) + 1;
+    newRoot->height = max(getHeight(newRoot->lc), getHeight(newRoot->rc)) + 1;
     return newRoot;
 }
 
-Node* R_rotation(Node* root){
-    Node* newRoot=root->lc;
-    root->lc=newRoot->rc;
-    newRoot->rc=root;
-    root->height=max(getHeight(root->lc),getHeight(root->rc))+1;
-    newRoot->height=max(getHeight(newRoot->lc),getHeight(newRoot->rc))+1;
+Node* R_rotation(Node* root) {
+    Node* newRoot = root->lc;
+    root->lc = newRoot->rc;
+    newRoot->rc = root;
+    root->height = max(getHeight(root->lc), getHeight(root->rc)) + 1;
+    newRoot->height = max(getHeight(newRoot->lc), getHeight(newRoot->rc)) + 1;
     return newRoot;
 }
 
-Node* LR_rotation(Node* root){
-    Node* newRoot=root->lc->rc;
-    root->lc->rc=newRoot->lc;
-    newRoot->lc=root->lc;
-    root->lc=newRoot->rc;
-    newRoot->rc=root;
-    newRoot->lc->height= max(getHeight(newRoot->lc->lc), getHeight(newRoot->lc->rc))+1;
-    newRoot->rc->height= max(getHeight(newRoot->rc->lc), getHeight(newRoot->rc->rc))+1;
-    newRoot->height= max(newRoot->lc->height,newRoot->rc->height)+1;//这种情况左右子节点一定存在，直接访问
+Node* LR_rotation(Node* root) {
+    Node* newRoot = root->lc->rc;
+    root->lc->rc = newRoot->lc;
+    newRoot->lc = root->lc;
+    root->lc = newRoot->rc;
+    newRoot->rc = root;
+    newRoot->lc->height = max(getHeight(newRoot->lc->lc), getHeight(newRoot->lc->rc)) + 1;
+    newRoot->rc->height = max(getHeight(newRoot->rc->lc), getHeight(newRoot->rc->rc)) + 1;
+    newRoot->height = max(newRoot->lc->height, newRoot->rc->height) + 1;//这种情况左右子节点一定存在，直接访问
     return newRoot;
 }
 
-Node* RL_rotation(Node* root){
-    Node* newRoot=root->rc->lc;
-    root->rc->lc=newRoot->rc;
-    newRoot->rc=root->rc;
-    root->rc=newRoot->lc;
-    newRoot->lc=root;
-    newRoot->lc->height= max(getHeight(newRoot->lc->lc), getHeight(newRoot->lc->rc))+1;
-    newRoot->rc->height= max(getHeight(newRoot->rc->lc), getHeight(newRoot->rc->rc))+1;
-    newRoot->height= max(newRoot->lc->height,newRoot->rc->height)+1;//这种情况左右子节点一定存在，直接访问
+Node* RL_rotation(Node* root) {
+    Node* newRoot = root->rc->lc;
+    root->rc->lc = newRoot->rc;
+    newRoot->rc = root->rc;
+    root->rc = newRoot->lc;
+    newRoot->lc = root;
+    newRoot->lc->height = max(getHeight(newRoot->lc->lc), getHeight(newRoot->lc->rc)) + 1;
+    newRoot->rc->height = max(getHeight(newRoot->rc->lc), getHeight(newRoot->rc->rc)) + 1;
+    newRoot->height = max(newRoot->lc->height, newRoot->rc->height) + 1;//这种情况左右子节点一定存在，直接访问
     return newRoot;
 }
 
@@ -134,7 +137,7 @@ Node* RL_rotation(Node* root){
 Node* constructBinaryTree(Tuple tuples[], int  left, int right) {
     if (left > right)return nullptr;
     int mid = (left + right) / 2;
-    Node* root = new Node(new Tuple(tuples[mid]),nullptr,nullptr);
+    Node* root = new Node(new Tuple(tuples[mid]), nullptr, nullptr);
     root->key = tuples[mid].key;
     root->lc = constructBinaryTree(tuples, left, mid - 1);
     root->rc = constructBinaryTree(tuples, mid + 1, right);
@@ -143,7 +146,7 @@ Node* constructBinaryTree(Tuple tuples[], int  left, int right) {
 
 //构建p-树
 Node* build(Tuple A[], int m) {
-    Node* root= constructBinaryTree(A, 0, m - 1);
+    Node* root = constructBinaryTree(A, 0, m - 1);
     updateHeight(root);
     return root;
 }
@@ -184,72 +187,75 @@ Node* copy(Node* t) {
     return  new Node(*t);
 }
 
-//连接父子节点  doing
+//连接父子节点  done
 Node* concat(Node* L, Node* t, Node* R) {
-    if(t!=nullptr){
-        if(getHeight(L)>getHeight(R)+1){
-            t->rc=R;
-            Node* p=L;
-            Node* pre_to_p=nullptr;
+    if (t != nullptr) {
+        if (getHeight(L) > getHeight(R) + 1) {
+            t->rc = R;
+            Node* p = L;
+            Node* pre_to_p = nullptr;
             //寻找高为h(R)+1的子树，根节点为p->rc,
             //特殊情况：h(L->l)=h(R)+1,h(L->r)=h(R),此时，该子树的高度为h(R)
-            while (getHeight(p->rc)>getHeight(R)+1) {
-                pre_to_p=p;
-                p=p->rc;
+            while (getHeight(p->rc) > getHeight(R) + 1) {
+                pre_to_p = p;
+                p = p->rc;
             }
-            t->lc=p->rc;
-            p->rc=t;
-            t->height=max(getHeight(t->lc),getHeight(t->rc))+1;
+            t->lc = p->rc;
+            p->rc = t;
+            t->height = max(getHeight(t->lc), getHeight(t->rc)) + 1;
             //p的左右子树高度分别为h(R),h(R)+1
-            if(getHeight(p->lc)<getHeight(t->lc)){
-                p->height=max(getHeight(p->lc),getHeight(p->rc))+1;
-                if(pre_to_p==nullptr){//也即p=L，进行RL旋转后，根节点可能会变
+            if (getHeight(p->lc) < getHeight(t->lc)) {
+                p->height = max(getHeight(p->lc), getHeight(p->rc)) + 1;
+                if (pre_to_p == nullptr) {//也即p=L，进行RL旋转后，根节点可能会变
                     return RL_rotation(p);
-                }else{
-                    pre_to_p->rc=RL_rotation(p);
+                }
+                else {
+                    pre_to_p->rc = RL_rotation(p);
                 }
             }
             //p的左右子树高度都为h(R)+1,(都为h(R)的情况不存在,原因见前面的注释)
             //此时应当更新从root到p路径上节点的height
-            else if(getHeight(p->lc)==getHeight(t->lc)){
-                p->height=max(getHeight(p->lc),getHeight(p->rc))+1;
-                updateHeight(L,p,true);
+            else if (getHeight(p->lc) == getHeight(t->lc)) {
+                p->height = max(getHeight(p->lc), getHeight(p->rc)) + 1;
+                updateHeight(L, p, true);
             }
             return L;
         }
-        else if(getHeight(R)>getHeight(L)+1){
-            t->rc=L;
-            Node* p=R;
-            Node* pre_to_p=nullptr;
-            while (getHeight(p->lc)>getHeight(L)+1) {
-                pre_to_p=p;
-                p=p->lc;
+        else if (getHeight(R) > getHeight(L) + 1) {
+            t->rc = L;
+            Node* p = R;
+            Node* pre_to_p = nullptr;
+            while (getHeight(p->lc) > getHeight(L) + 1) {
+                pre_to_p = p;
+                p = p->lc;
             }
-            t->rc=p->lc;
-            p->lc=t;
-            t->height=max(getHeight(t->lc),getHeight(t->rc))+1;
-            if(getHeight(p->rc)<getHeight(t->rc)){
-                p->height=max(getHeight(p->lc),getHeight(p->rc))+1;
-                if(pre_to_p==nullptr){
+            t->rc = p->lc;
+            p->lc = t;
+            t->height = max(getHeight(t->lc), getHeight(t->rc)) + 1;
+            if (getHeight(p->rc) < getHeight(t->rc)) {
+                p->height = max(getHeight(p->lc), getHeight(p->rc)) + 1;
+                if (pre_to_p == nullptr) {
                     return RL_rotation(p);
-                }else{
-                    pre_to_p->lc=RL_rotation(p);
+                }
+                else {
+                    pre_to_p->lc = RL_rotation(p);
                 }
             }
-            else if(getHeight(p->rc)==getHeight(t->rc)){
-                p->height=max(getHeight(p->lc),getHeight(p->rc))+1;
-                updateHeight(L,p, false);
+            else if (getHeight(p->rc) == getHeight(t->rc)) {
+                p->height = max(getHeight(p->lc), getHeight(p->rc)) + 1;
+                updateHeight(L, p, false);
             }
             return L;
 
         }
-        else{
-            t->lc=L;
-            t->rc=R;
-            t->height=max(getHeight(L), getHeight(R))+1;
+        else {
+            t->lc = L;
+            t->rc = R;
+            t->height = max(getHeight(L), getHeight(R)) + 1;
             return t;
         }
-    }else{
+    }
+    else {
         //to do
         return nullptr;
     }
@@ -286,7 +292,7 @@ Node* multi_insert(Node* t, Tuple A[], int m, int (*rho)(int val1, int val2)) {
         return t;
     }
     int b = binarySearch(A, m, t->key);//b相当于小于t->key的子数组长度
-    int d = (b<m&& A[b].key>t->key) ? 1 : 0;//t->key不在A[]中，且不超过A[]的最大值
+    int d = (b<m&& A[b].key==t->key) ? 1 : 0;//t->key在A[]中
     Node* L = multi_insert(t->lc, A, b, rho);
     Node* R = multi_insert(t->rc, A + b + d, m - b - d, rho);
     Node* t2 = copy(t);
@@ -328,8 +334,8 @@ void foreach_index(Node* t, void (*function)(Tuple* e, int i), int s) {
 
 //先序遍历p-树
 void travel(Node* t) {
-    if (t == nullptr){
-        cout<<"# ";
+    if (t == nullptr) {
+        cout << "# ";
         return;
     }
 
@@ -337,8 +343,6 @@ void travel(Node* t) {
     travel(t->lc);
     travel(t->rc);
 }
-
-int rho(int val1, int val2) { return val2; }
 
 //done
 void test_build() {
@@ -363,23 +367,38 @@ void test_build() {
 
 }
 
-//to do
+//doing 
 void test_multi_insert() {
-    int const m = 5;
-    Tuple tuples[m];
-    cout << "build p-tree" << endl;
-    KeyType build_key[] = { 1,2,3,4,5 };
-    ValueType build_value[] = { 101,102,103,104,105 };
+    Node* indexRoot = nullptr;
 
+    //build----------------------------------------------------
+    cout << "build p-tree" << endl;
+    int const m = 10;
+    Tuple tuples[m];  
+    KeyType build_key[] = { 1,3,5,7,9,11,13,15,17,19 };
+    ValueType build_value[] = { 0,0,0,0,0,0,0,0,0,0 };
     for (int i = 0; i < m; i++) {
         tuples[i].key = build_key[i];
         tuples[i].val = build_value[i];
-        cout << "[" << tuples[i].key << ":" << tuples[i].val << "] ";
+       // cout << "[" << tuples[i].key << ":" << tuples[i].val << "] ";
     }
-    cout << endl;
-
-    Node* indexRoot = nullptr;
+    //cout << endl;
     indexRoot = multi_insert(indexRoot, tuples, m, rho);
+    travel(indexRoot); cout << endl;
+    //inset----------------------------------------------------
+    int const m2 = 3;
+    Tuple tuples2[m2];
+    cout << "insert p-tree" << endl;
+    KeyType insert_key[] = { 2,4,6 };
+    ValueType insert_value[] = { 1,1,1 };
+    for (int i = 0; i < m2; i++) {
+        tuples2[i].key = insert_key[i];
+        tuples2[i].val = insert_value[i];
+        // cout << "[" << tuples[i].key << ":" << tuples[i].val << "] ";
+    }
+    //cout << endl;
+    Node* indexRoot2 = multi_insert(indexRoot, tuples2, m2, rho);
+    travel(indexRoot2); cout << endl;
 }
 
 //done
@@ -400,40 +419,40 @@ void test_size() {
     Node* indexRoot = nullptr;
     indexRoot = multi_insert(indexRoot, tuples, m, rho);
 
-    cout << " size " <<size(indexRoot) << endl;
+    cout << " size " << size(indexRoot) << endl;
 
 }
 
 //done
 void test_binarySearch() {
 
-    int A[] = { 1,2,4,5,6,7,8 ,9,11};
-    for (int i=0;i<=12;i++) {
-        cout << i << ":"<<binarySearch(A, 9, i) << " ";
+    int A[] = { 1,2,4,5,6,7,8 ,9,11 };
+    for (int i = 0; i <= 12; i++) {
+        cout << i << ":" << binarySearch(A, 9, i) << " ";
     }
     cout << endl;
 }
 
 //done
 void test_height(int const m) {
-    Tuple *tuples=new Tuple[m];
+    Tuple* tuples = new Tuple[m];
     // cout << "build p-tree" << endl;
     for (int i = 0; i < m; i++) {
         tuples[i].key = i;
-        tuples[i].val = i+100;
+        tuples[i].val = i + 100;
         // cout << "[" << tuples[i].key << ":" << tuples[i].val << "] ";
     }
     cout << endl;
     Node* indexRoot = nullptr;
     indexRoot = multi_insert(indexRoot, tuples, m, rho);
-    cout << m<<":"<<getHeight(indexRoot) << endl;
-    delete []tuples;
+    cout << m << ":" << getHeight(indexRoot) << endl;
+    delete[]tuples;
 }
 
 //doing
 void test_concat() {
-    int const m1 = 15,m2=3;
-    Tuple tuples1[m1],tuples2[m2];
+    int const m1 = 15, m2 = 3;
+    Tuple tuples1[m1], tuples2[m2];
     cout << "build p-tree" << endl;
 
     KeyType build_key1[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 };
@@ -441,28 +460,28 @@ void test_concat() {
     for (int i = 0; i < m1; i++) {
         tuples1[i].key = build_key1[i];
         tuples1[i].val = build_value1[i];
-       // cout << "[" << tuples1[i].key << ":" << tuples1[i].val << "] ";
+        // cout << "[" << tuples1[i].key << ":" << tuples1[i].val << "] ";
     }
     //cout << endl;
 
-    KeyType build_key2[]= { 17,18,19 };
-    ValueType build_value2[]= { 3,3,3 };
+    KeyType build_key2[] = { 17,18,19 };
+    ValueType build_value2[] = { 3,3,3 };
     for (int i = 0; i < m2; i++) {
         tuples2[i].key = build_key2[i];
         tuples2[i].val = build_value2[i];
-       // cout << "[" << tuples2[i].key << ":" << tuples2[i].val << "] ";
+        // cout << "[" << tuples2[i].key << ":" << tuples2[i].val << "] ";
     }
-   // cout << endl;
+    // cout << endl;
 
     Node* indexRoot1 = nullptr;
     Node* indexRoot2 = nullptr;
-    Node* indexRoot3 = new Node(new Tuple(16,2), nullptr, nullptr);
+    Node* indexRoot3 = new Node(new Tuple(16, 2), nullptr, nullptr);
 
     indexRoot1 = multi_insert(indexRoot1, tuples1, m1, rho);
     indexRoot2 = multi_insert(indexRoot2, tuples2, m2, rho);
-    travel(indexRoot1);cout << endl;
-    travel(indexRoot2);cout << endl;
-    indexRoot3=concat(indexRoot1,indexRoot3,indexRoot2);
+    travel(indexRoot1); cout << endl;
+    travel(indexRoot2); cout << endl;
+    indexRoot3 = concat(indexRoot1, indexRoot3, indexRoot2);
     travel(indexRoot3);
     cout << endl;
 }
@@ -485,25 +504,25 @@ void test_foreachindex() {
 }
 
 //done
-void test_avl(){
-    Node *a,*b,*c,*b1,*c1,*c2,*a2;
-    c1=new Node(new Tuple(3,0), nullptr, nullptr);
-    c2=new Node(new Tuple(5,0), nullptr, nullptr);
-    c=new Node(new Tuple(4,0), c1, c2);
-    b1=new Node(new Tuple(1,0), nullptr, nullptr);
-    b=new Node(new Tuple(2,0), b1, c);
-    a2=new Node(new Tuple(7,0), nullptr, nullptr);
-    a=new Node(new Tuple(6,0), b, a2);
+void test_avl() {
+    Node* a, * b, * c, * b1, * c1, * c2, * a2;
+    c1 = new Node(new Tuple(3, 0), nullptr, nullptr);
+    c2 = new Node(new Tuple(5, 0), nullptr, nullptr);
+    c = new Node(new Tuple(4, 0), c1, c2);
+    b1 = new Node(new Tuple(1, 0), nullptr, nullptr);
+    b = new Node(new Tuple(2, 0), b1, c);
+    a2 = new Node(new Tuple(7, 0), nullptr, nullptr);
+    a = new Node(new Tuple(6, 0), b, a2);
 
-    Node* root=a;
+    Node* root = a;
     updateHeight(root);
-    travel(root);cout<<endl;
-    root= LR_rotation(root);
-    travel(root);cout<<endl;
+    travel(root); cout << endl;
+    root = LR_rotation(root);
+    travel(root); cout << endl;
 }
 
 int main()
 {
-    test_avl();
+    test_multi_insert();
     return 0;
 }
