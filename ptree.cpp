@@ -296,22 +296,26 @@ Node* concat(Node* L, Node* t, Node* R) {
 
 //引用计数器加1
 void add_ref(Node* t) {
-    t->reference_counter++;
+    if(t!= nullptr){
+        t->reference_counter++;
+    }
 }
 
+//返回所有>=k的节点构成的树
 Node* right(Node* t, KeyType k) {
-    if (t == nullptr)return t;
-    if (k > t->key)return right(t->rc, k);
+    if (t == nullptr)return nullptr;
+    if (t->key<k)return right(t->rc, k);
     Node* t2 = copy(t);
     add_ref(t->rc);
     return concat(right(t->lc, k), t2, t->rc);
 }
+//返回所有<=k的节点构成的树
 Node* left(Node* t, KeyType k) {
-    if (t == nullptr)return t;
-    if (k < t->key)return left(t->lc, k);
+    if (t == nullptr)return nullptr;
+    if (t->key>k)return left(t->lc, k);
     Node* t2 = copy(t);
     add_ref(t->lc);
-    return concat(t->lc, t2, left(t->rc, k));
+    return concat(t->lc,t2,left(t->rc, k));
 }
 
 //t:根节点;A[]:待插入的元组(已排序);m:元组个数
@@ -517,22 +521,32 @@ void test_concat() {
     cout << endl;
 }
 
-//to do
+//done
 void tesy_left_right() {
+    cout << "build p-tree" << endl;
+    int const m = 18;
+    Tuple tuples[m];
+    KeyType build_key[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+    ValueType build_value[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
+    for (int i = 0; i < m; i++) {
+        tuples[i].key = build_key[i];
+        tuples[i].val = build_value[i];
+    }
+    Node* indexRoot = nullptr;
+    indexRoot = multi_insert(indexRoot, tuples, m, rho);travel(indexRoot); cout<<endl;
+    Node* indexRoot2= right(indexRoot->lc,2); travel(indexRoot2);cout<<endl;
+    Node* indexRoot3= left(indexRoot->rc,14);travel(indexRoot3);cout<<endl;
 
 }
-//to do
-void test_fileter() {
 
-}
-//doing
+//done
 void test_range() {
     cout << "build p-tree" << endl;
     int const m = 18;
-   Tuple tuples[m];
-   
+    Tuple tuples[m];
     KeyType build_key[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
-    ValueType build_value[] = { 0,0,0,0,0,0,0,0,0,0.0,0,0,0,0,0,0,0,0 };
+    ValueType build_value[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
     //KeyType build_key[] = {1,2,3,4,5,6,7};
     //ValueType build_value[] = { 0,0,0,0,0,0,0 };
     for (int i = 0; i < m; i++) {
@@ -544,9 +558,13 @@ void test_range() {
     travel(indexRoot);
     cout << endl;
     cout << "test_range " << endl;
-    Node* indexRoot2 = range(indexRoot, 2, 17);
+    Node* indexRoot2 = range(indexRoot, 2, 11);
     travel(indexRoot2);
     cout << endl;
+}
+//to do
+void test_fileter() {
+
 }
 //to do
 void test_foreachindex() {
