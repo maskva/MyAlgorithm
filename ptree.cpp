@@ -299,19 +299,19 @@ void add_ref(Node* t) {
     t->reference_counter++;
 }
 
-Node* right(Node* t, int k) {
+Node* right(Node* t, KeyType k) {
     if (t == nullptr)return t;
     if (k > t->key)return right(t->rc, k);
     Node* t2 = copy(t);
     add_ref(t->rc);
     return concat(right(t->lc, k), t2, t->rc);
 }
-Node* left(Node* t, int k) {
+Node* left(Node* t, KeyType k) {
     if (t == nullptr)return t;
-    if (k < t->key)return right(t->lc, k);
+    if (k < t->key)return left(t->lc, k);
     Node* t2 = copy(t);
     add_ref(t->lc);
-    return concat(left(t->rc, k), t2, t->lc);
+    return concat(t->lc, t2, left(t->rc, k));
 }
 
 //t:根节点;A[]:待插入的元组(已排序);m:元组个数
@@ -331,7 +331,7 @@ Node* multi_insert(Node* t, Tuple A[], int m, int (*rho)(int val1, int val2)) {
     return concat(L, t2, R);
 }
 
-Node* range(Node* t, int kl, int kr) {
+Node* range(Node* t, KeyType kl, KeyType kr) {
     Node* cur = t;
     while (cur->key<kl || cur->key>kr) {
         if (cur->key < kl)cur = cur->rc;
@@ -398,7 +398,7 @@ void test_build() {
 
 }
 
-//doing
+//done
 void test_multi_insert() {
     Node* indexRoot = nullptr;
 
@@ -480,7 +480,7 @@ void test_height(int const m) {
     delete[]tuples;
 }
 
-//doing
+//done
 void test_concat() {
     int const m1 = 15, m2 = 3;
     Tuple tuples1[m1], tuples2[m2];
@@ -525,9 +525,28 @@ void tesy_left_right() {
 void test_fileter() {
 
 }
-//to do
+//doing
 void test_range() {
-
+    cout << "build p-tree" << endl;
+    int const m = 18;
+   Tuple tuples[m];
+   
+    KeyType build_key[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+    ValueType build_value[] = { 0,0,0,0,0,0,0,0,0,0.0,0,0,0,0,0,0,0,0 };
+    //KeyType build_key[] = {1,2,3,4,5,6,7};
+    //ValueType build_value[] = { 0,0,0,0,0,0,0 };
+    for (int i = 0; i < m; i++) {
+        tuples[i].key = build_key[i];
+        tuples[i].val = build_value[i];
+    }
+    Node* indexRoot = nullptr;
+    indexRoot = multi_insert(indexRoot, tuples, m, rho);
+    travel(indexRoot);
+    cout << endl;
+    cout << "test_range " << endl;
+    Node* indexRoot2 = range(indexRoot, 2, 17);
+    travel(indexRoot2);
+    cout << endl;
 }
 //to do
 void test_foreachindex() {
@@ -554,6 +573,6 @@ void test_avl() {
 
 int main()
 {
-    test_multi_insert();
+    test_range();
     return 0;
 }
