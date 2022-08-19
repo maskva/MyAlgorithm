@@ -3,25 +3,26 @@
 #include <time.h>
 #include<iostream>
 #include "BPlusTree.h"
+#define TEMP 1
 using namespace std;
 
 
-// éšæœºå»ºç«‹ä¸€æ£µæ ‘
+// Ëæ»ú½¨Á¢Ò»¿ÃÊ÷
 void Test1(BPlusTree* pTree, int count)
 {
     pTree->ClearTree();
 
-    //srand( (unsigned)time( NULL ) );//è¿™æ˜¯ä¸€ä¸ªç§å­ï¼Œå¦‚æœä¸è¦éšæœºåŠŸèƒ½ï¼Œè¯·æŠŠæ­¤å¥è¯æ³¨é‡Šæ‰
+    //srand( (unsigned)time( NULL ) );//ÕâÊÇÒ»¸öÖÖ×Ó£¬Èç¹û²»ÒªËæ»ú¹¦ÄÜ£¬Çë°Ñ´Ë¾ä»°×¢ÊÍµô
     for (int i = 0; i < count; i++)
     {
         int x = rand() % 999 + 1;
-        (void)pTree->Insert(x);
+        (void)pTree->Insert(x,TEMP);
     }
 
     printf("successed!\n");
 }
 
-// åœ¨æ ‘ä¸­æŸ¥æ‰¾æŸæ•°æ®
+// ÔÚÊ÷ÖĞ²éÕÒÄ³Êı¾İ
 void Test2(BPlusTree* pTree, int data)
 {
     char sPath[255] = { 0, };
@@ -30,10 +31,10 @@ void Test2(BPlusTree* pTree, int data)
     printf("\n%s", sPath);
 }
 
-// åœ¨æ ‘ä¸­æ’å…¥æŸæ•°æ®
+// ÔÚÊ÷ÖĞ²åÈëÄ³Êı¾İ
 void Test3(BPlusTree* pTree, int data)
 {
-    bool success = pTree->Insert(data);
+    bool success = pTree->Insert(data,TEMP);
     if (true == success)
     {
         printf("\nsuccessed!\n");
@@ -44,7 +45,7 @@ void Test3(BPlusTree* pTree, int data)
     }
 }
 
-// åœ¨æ ‘ä¸­åˆ é™¤æŸæ•°æ®
+// ÔÚÊ÷ÖĞÉ¾³ıÄ³Êı¾İ
 void Test4(BPlusTree* pTree, int data)
 {
     bool success = pTree->Delete(data);
@@ -58,22 +59,22 @@ void Test4(BPlusTree* pTree, int data)
     }
 }
 
-// å¯¹æ ‘è¿›è¡Œæ—‹è½¬
-BPlusTree* Test5(BPlusTree* pTree)
-{
-    BPlusTree* pNewTree = pTree->RotateTree();
-    delete pTree;
-    printf("\nsuccessed!\n");
-    return pNewTree;
-}
+// ¶ÔÊ÷½øĞĞĞı×ª
+//BPlusTree* Test5(BPlusTree* pTree)
+//{
+//    BPlusTree* pNewTree = pTree->RotateTree();
+//    delete pTree;
+//    printf("\nsuccessed!\n");
+//    return pNewTree;
+//}
 
-// æ‰“å°
+// ´òÓ¡
 void Test6(BPlusTree* pTree)
 {
     pTree->PrintTree();
 }
 
-// å¯¹æ ‘è¿›è¡Œæ£€æŸ¥
+// ¶ÔÊ÷½øĞĞ¼ì²é
 void Test7(BPlusTree* pTree)
 {
     bool success = pTree->CheckTree();
@@ -98,17 +99,17 @@ int main(int argc, char* argv[])
     {
         printf("\n\n");
         printf("    *******************************************************************\n");
-        printf("    *           æ¬¢è¿è¿›å…¥B+æ ‘æ¼”ç¤ºç¨‹åºï¼Œè¯·é€‰æ‹©ç›¸åº”åŠŸèƒ½ã€‚                *\n");
-        printf("    *           1ã€‚éšæœºå»ºç«‹ä¸€æ£µB+æ ‘ï¼›                                 *\n");
-        printf("    *           2ã€‚åœ¨B+æ ‘ä¸­æŸ¥æ‰¾ä¸€ä¸ªæ•°ï¼›                               *\n");
-        printf("    *           3ã€‚åœ¨B+æ ‘ä¸­æ’å…¥ä¸€ä¸ªæ•°ï¼›                               *\n");
-        printf("    *           4ã€‚åœ¨B+æ ‘ä¸­åˆ é™¤ä¸€ä¸ªæ•°ï¼›                               *\n");
-        printf("    *           5ã€‚å¯¹B+æ ‘æ—‹è½¬ï¼Œè¿›è¡Œé‡æ–°å¹³è¡¡ï¼›                         *\n");
-        printf("    *           6ã€‚æ˜¾ç¤ºæ•´ä¸ªB+æ ‘ï¼›                                     *\n");
-        printf("    *           7ã€‚æ£€æŸ¥æ•´ä¸ªB+æ ‘ï¼›                                     *\n");
-        printf("    *           0ã€‚é€€å‡ºç¨‹åºï¼›                                         *\n");
+        printf("    *           »¶Ó­½øÈëB+Ê÷ÑİÊ¾³ÌĞò£¬ÇëÑ¡ÔñÏàÓ¦¹¦ÄÜ¡£                *\n");
+        printf("    *           1¡£Ëæ»ú½¨Á¢Ò»¿ÃB+Ê÷£»                                 *\n");
+        printf("    *           2¡£ÔÚB+Ê÷ÖĞ²éÕÒÒ»¸öÊı£»                               *\n");
+        printf("    *           3¡£ÔÚB+Ê÷ÖĞ²åÈëÒ»¸öÊı£»                               *\n");
+        printf("    *           4¡£ÔÚB+Ê÷ÖĞÉ¾³ıÒ»¸öÊı£»                               *\n");
+        printf("    *           5¡£¶ÔB+Ê÷Ğı×ª£¬½øĞĞÖØĞÂÆ½ºâ£»                         *\n");
+        printf("    *           6¡£ÏÔÊ¾Õû¸öB+Ê÷£»                                     *\n");
+        printf("    *           7¡£¼ì²éÕû¸öB+Ê÷£»                                     *\n");
+        printf("    *           0¡£ÍË³ö³ÌĞò£»                                         *\n");
         printf("    *******************************************************************\n");
-        printf("\n    æ‚¨çš„é€‰æ‹©æ˜¯ï¼š");
+        printf("\n    ÄúµÄÑ¡ÔñÊÇ£º");
 
 
         cin >> x;
@@ -116,35 +117,35 @@ int main(int argc, char* argv[])
         switch (x)
         {
         case 1:
-            printf("è¯·è¾“å…¥æ•°æ®ä¸ªæ•°(10-150)ï¼š");
+            printf("ÇëÊäÈëÊı¾İ¸öÊı(10-150)£º");
             cin >> y;
            // scanf("%d", &y);
             Test1(pTree, y);
             break;
 
         case 2:
-            printf("è¯·è¾“å…¥è¦æŸ¥æ‰¾çš„æ•°å€¼ï¼š");
+            printf("ÇëÊäÈëÒª²éÕÒµÄÊıÖµ£º");
             cin >> y;
            // scanf("%d", &y);
             Test2(pTree, y);
             break;
 
         case 3:
-            printf("è¯·è¾“å…¥è¦æ’å…¥çš„æ•°å€¼ï¼š");
+            printf("ÇëÊäÈëÒª²åÈëµÄÊıÖµ£º");
             cin >> y;
            // scanf("%d", &y);
             Test3(pTree, y);
             break;
 
         case 4:
-            printf("è¯·è¾“å…¥è¦åˆ é™¤çš„æ•°å€¼ï¼š");
+            printf("ÇëÊäÈëÒªÉ¾³ıµÄÊıÖµ£º");
             cin >> y;
            // scanf("%d", &y);
             Test4(pTree, y);
             break;
 
         case 5:
-            pTree = Test5(pTree);
+            //pTree = Test5(pTree);
             break;
 
         case 6:
